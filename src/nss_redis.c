@@ -1,52 +1,112 @@
-
 #include "nss_redis.h"
-#include <stdio.h>
-#include <nss.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <grp.h>
-#include <stdlib.h>
-#include <string.h>
+#include "nss_redis_utils.h"
 
-enum nss_status
-_nss_redis_init (uid_t uid, struct passwd *result, char *buffer, size_t buflen, int *errnop) {
-  fprintf(stderr, "_nss_redis_getpwuid_r %d %p %ld %d\n", uid, buffer, buflen, *errnop);
+static pthread_mutex_t lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+static bool atexit_isset  = false;
+static bool loaded_config = false;
+
+static void
+_nss_redis_atexit_handler (void)
+{
+  pthread_mutex_lock(&lock);
+  _nss_redis_redis_disconnect();
+  _nss_redis_redis_clean_passwod();
+  pthread_mutex_unlock(&lock);
 }
 
-enum nss_status
-_nss_redis_getpwuid_r (uid_t uid, struct passwd *result, char *buffer, size_t buflen, int *errnop) {
-  //fprintf(stderr, "_nss_redis_getpwuid_r %d %p %ld %d\n", uid, buffer, buflen, *errnop);
-  const char *pw_name = "hiboma";
-  memset (buffer, 0, buflen);
-  result->pw_name  = strncpy(buffer, pw_name, strlen(pw_name));
-  return NSS_STATUS_SUCCESS;
-}
+void
+_nss_redis_init () {
 
-enum nss_status
-_nss_redis_getgrgid_r (uid_t gid, struct group *result, char *buffer,
-                       size_t buflen, int *errnop) {
-  fprintf(stderr, "_nss_redis_getgrgid_r %d %p %ld %d\n", gid, buffer, buflen, *errnop);
-  const char *gr_name = "hiboma";
-  memset (buffer, 0, buflen);
-  result->gr_name = strncpy(buffer, gr_name, strlen(gr_name));
-  return NSS_STATUS_SUCCESS;
-}
-
-enum nss_status
-_nss_redis_getpwnam_r (const char *name, struct passwd *result, char * buffer, size_t buflen, int *errnop) {
-  fprintf(stderr, "%s %s\n", __func__, name);
-
-  enum nss_status status;
-  int offset = 0;
-  redisContext *redis;
-
-  redis = nss_redis_redis_connect();
-  if(redis == NULL) {
-    return NSS_STATUS_UNAVAIL;
+  if(loaded_config == false ) {
+    _nss_redis_load_config(NULL);
+    loaded_config = true;
   }
-  return nss_redis_getpwnam(redis, name, result, buffer, buflen);
+
+  if(atexit_isset == false) {
+    if(atexit(_nss_redis_atexit_handler) == 0) {
+      atexit_isset = true;
+    }
+  }
+
 }
 
-enum nss_status _nss_redis_getpwent_r (struct passwd *results, char * buffer, size_t buflen, int *errnop) { 
-  return NSS_STATUS_SUCCESS;
+nss_status_t
+_nss_redis_getpwuid_r (uid_t uid, struct passwd *result, char *buffer,
+                       size_t buflen, int *errnop) {
+
+  pthread_mutex_lock(&lock);
+  nss_status_t status;
+
+  _nss_redis_init();
+
+  redisContext *redis = _nss_redis_redis_connect();
+  if(redis == NULL) {
+    status = NSS_STATUS_UNAVAIL;
+  } else {
+    status = _nss_redis_getpwuid(redis, uid, result, buffer, buflen);
+  }
+
+  pthread_mutex_unlock(&lock);
+  return status;
 }
+
+nss_status_t
+_nss_redis_getpwnam_r (const char *name, struct passwd *result, char * buffer,
+                       size_t buflen, int *errnop) {
+
+  pthread_mutex_lock(&lock);
+  nss_status_t status;
+
+  _nss_redis_init();
+
+  redisContext *redis = _nss_redis_redis_connect();
+  if(redis == NULL) {
+    status = NSS_STATUS_UNAVAIL;
+  } else { 
+    status = _nss_redis_getpwnam(redis, name, result, buffer, buflen);
+  }
+
+  pthread_mutex_unlock(&lock);
+  return status;
+}
+
+nss_status_t
+_nss_redis_getgrnam_r (const char *name, struct group *result, char *buffer,
+                       size_t buflen, int *errnop) {
+
+  pthread_mutex_lock(&lock);
+  nss_status_t status;
+
+  _nss_redis_init();
+
+  redisContext *redis = _nss_redis_redis_connect();
+  if(redis == NULL) {
+    status = NSS_STATUS_UNAVAIL;
+  } else {
+    status = _nss_redis_getgrnam(redis, name, result, buffer, buflen);
+  }
+
+  pthread_mutex_unlock(&lock);
+  return status;
+}
+
+nss_status_t
+_nss_redis_getgrgid_r (gid_t gid, struct group *result, char *buffer,
+                       size_t buflen, int *errnop) {
+  pthread_mutex_lock(&lock);
+  nss_status_t status;
+
+  _nss_redis_init();
+
+  redisContext *redis = _nss_redis_redis_connect();
+  if(redis == NULL) {
+    status = NSS_STATUS_UNAVAIL;
+  } else { 
+    status = _nss_redis_getgrgid(redis, gid, result, buffer, buflen);
+  }
+
+  pthread_mutex_unlock(&lock);
+  return status;
+}
+

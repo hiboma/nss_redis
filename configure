@@ -904,6 +904,8 @@ with_pic
 enable_fast_install
 with_gnu_ld
 enable_libtool_lock
+with_hiredis
+enable_debug
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1551,6 +1553,7 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --enable-debug turn on        Enable debug
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1558,6 +1561,7 @@ Optional Packages:
   --with-pic              try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
+  --with-hiredis=DIR            Location of your libhiredis installation
 
 Some influential environment variables:
   CC          C compiler command
@@ -4367,13 +4371,13 @@ if test "${lt_cv_nm_interface+set}" = set; then
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4370: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4374: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4373: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4377: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4376: output\"" >&5)
+  (eval echo "\"\$as_me:4380: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5579,7 +5583,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5582 "configure"' > conftest.$ac_ext
+  echo '#line 5586 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7432,11 +7436,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7435: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7439: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7439: \$? = $ac_status" >&5
+   echo "$as_me:7443: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7771,11 +7775,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7774: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7778: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7778: \$? = $ac_status" >&5
+   echo "$as_me:7782: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7876,11 +7880,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7879: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7883: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7883: \$? = $ac_status" >&5
+   echo "$as_me:7887: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7931,11 +7935,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7934: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7938: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7938: \$? = $ac_status" >&5
+   echo "$as_me:7942: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10734,7 +10738,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10737 "configure"
+#line 10741 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10830,7 +10834,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10833 "configure"
+#line 10837 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11058,9 +11062,30 @@ CC="$lt_save_CC"
 
 
 
+CFLAGS="$CFLAGS -std=gnu99 -Wextra -Wall -W -Wno-sign-compare"
+
 #
 # configure libhiredis
 #
+
+# Check whether --with-hiredis was given.
+if test "${with_hiredis+set}" = set; then
+  withval=$with_hiredis;
+fi
+
+
+if test -n "$with_hiredis"
+then
+    HIREDIS_LIB_DIR="$with_hiredis/lib/"
+    HIREDIS_INC_DIR="$with_hiredis/include/"
+    LDFLAGS="-L$HIREDIS_LIB_DIR $LDFLAGS"
+    CPPFLAGS="-I$HIREDIS_INC_DIR $CPPFLAGS"
+    { $as_echo "$as_me:$LINENO: result: $LDFLAGS" >&5
+$as_echo "$LDFLAGS" >&6; }
+    { $as_echo "$as_me:$LINENO: result: $CPPFLAGS" >&5
+$as_echo "$CPPFLAGS" >&6; }
+fi
+
 have_hiredis="1"
 
 for ac_header in hiredis/hiredis.h
@@ -11298,10 +11323,21 @@ $as_echo "$as_me: error: \"cannot find library for -lhiredis.\"" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-# Checks for header files.
+# Check whether --enable-debug was given.
+if test "${enable_debug+set}" = set; then
+  enableval=$enable_debug;
+cat >>confdefs.h <<\_ACEOF
+#define DEBUG 1
+_ACEOF
+
+fi
 
 
-for ac_header in stdlib.h string.h
+
+
+
+
+for ac_header in stdlib.h string.h pthread.h nss.h
 do
 as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -11599,7 +11635,7 @@ fi
 # Checks for library functions.
 
 
-for ac_func in memset strdup
+for ac_func in memset strncpy
 do
 as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 { $as_echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -11700,7 +11736,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile t/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -12588,6 +12624,8 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "t/Makefile") CONFIG_FILES="$CONFIG_FILES t/Makefile" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

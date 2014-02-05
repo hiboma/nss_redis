@@ -1,0 +1,16 @@
+.dirstamp
+.libs
+.deps
+*.o
+*.lo
+*.la
+config.*
+autom4te.cache/*
+Makefile
+GPATH
+depfiles
+libtool
+GTAGS
+GRTAGS
+stamp-h1
+.#*
